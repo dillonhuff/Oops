@@ -19,6 +19,6 @@ ress = L.map snd rawCases
 
 rawCases =
   [("return 12;", []),
-   ("if (x) return 1; else return 1;", [issue $ stmts !! 1]),
-   ("if (x) {} else { return 1; }", [issue $ stmts !! 2]),
-   ("if (x) { return k; } else {}", [issue $ stmts !! 3])]
+   ("if (x) return 1; else return 1;", [redundantITE $ stmts !! 1]),
+   ("if (x) {} else { return 1; }", [redundantIf $ stmts !! 2]),
+   ("if (x) { return k; } else {}", [redundantElse $ stmts !! 3])]

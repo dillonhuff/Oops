@@ -1,13 +1,16 @@
 module SystemTest(main) where
 
+import Data.Either as E
 import Data.List as L
 import Data.Time.LocalTime
 import Language.Java.Parser
 
 import CheckCompilationUnit
 import FileManipulation
+import Issue
 
-projectDir = "/Users/dillon/javaTestProjects/openJDKSandbox/9dev"
+--projectDir = "/Users/dillon/JavaWorkspace"
+projectDir = "/Users/dillon/javaTestProjects/main"
 
 main :: IO ()
 main = do
@@ -15,13 +18,18 @@ main = do
   source <- allFilesWithExtensions javaExtensions projectDir
   res <- mapM (applyToFileContents parseAndCheckCU parseLog) source
   endTime <- getZonedTime
-  return ()
+  putStrLn $ "\n\n********************* FINAL ERROR REPORT **************************"
+  putStrLn $ showIssues $ L.concat $ E.rights res
+  putStrLn $ "*******************************************************************"
 
-parseLog :: String -> FilePath -> String
+parseLog :: Either String [Issue] -> FilePath -> String
 parseLog res path =
-  "Checked " ++ path ++ " result was:\n" ++ res
+  case res of
+    Left err -> "Parse error: " ++ err
+    Right issues -> "Checked " ++ path ++ " result was:\n" ++ showIssues issues
 
 parseAndCheckCU str =
   case parser compilationUnit str of
-    Left err -> "Parse error: " ++ show err ++ "\n"
-    Right compUnit -> (show $ checkCompilationUnit compUnit) ++ "\n"
+    Left err -> Left $ show err
+    Right compUnit -> Right $ checkCompilationUnit compUnit
+

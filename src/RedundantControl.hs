@@ -18,22 +18,22 @@ checkStmt issueCheckers s =
 redundantIfThenElse :: Stmt -> Maybe Issue
 redundantIfThenElse s@(IfThenElse _ iSt eSt) = 
   case iSt == eSt of
-    True -> Just $ issue s
+    True -> Just $ redundantITE s
     False -> Nothing
 redundantIfThenElse _ = Nothing
 
 emptyIf :: Stmt -> Maybe Issue
 emptyIf s@(IfThenElse _ iSt _) =
   case iSt of
-    Empty -> Just $ issue s
-    (StmtBlock (Block [])) -> Just $ issue s
+    Empty -> Just $ redundantIf s
+    (StmtBlock (Block [])) -> Just $ redundantIf s
     _ -> Nothing
 emptyIf _ = Nothing
 
 emptyElse :: Stmt -> Maybe Issue
 emptyElse s@(IfThenElse _ _ eSt) =
   case eSt of
-    Empty -> Just $ issue s
-    (StmtBlock (Block [])) -> Just $ issue s
+    Empty -> Just $ redundantElse s
+    (StmtBlock (Block [])) -> Just $ redundantElse s
     _ -> Nothing
 emptyElse _ = Nothing
