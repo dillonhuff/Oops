@@ -7,7 +7,7 @@ import Language.Java.Parser
 import CheckCompilationUnit
 import FileManipulation
 
-projectDir = "/Users/dillon/clojure"
+projectDir = "/Users/dillon/javaTestProjects/openJDKSandbox/9dev"
 
 main :: IO ()
 main = do
