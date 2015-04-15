@@ -6,6 +6,7 @@ import Language.Java.Parser
 import Issue
 import RedundantControl
 import TestUtils
+import Utils
 
 redundantITETests =
   testFunction redundantIfThenElse supITECases
@@ -19,6 +20,3 @@ ress = L.map snd rawCases
 rawCases =
   [("return 12;", Nothing),
    ("if (x) return 1; else return 1;", Just $ issue $ stmts !! 1)]
-
-extractRight (Right a) = a
-extractRight (Left a) = error "Bad left appears in extractRight"
