@@ -10,7 +10,7 @@ import FileManipulation
 import Issue
 
 --projectDir = "/Users/dillon/JavaWorkspace"
-projectDir = "/Users/dillon/javaTestProjects/main"
+projectDir = "/Users/dillon/javaTestProjects/clojure"
 
 main :: IO ()
 main = do
