@@ -5,6 +5,7 @@ module Issue(Issue,
              constantInIfCondition,
              emptyLoopBody,
              switchCaseIsSameAsDefault,
+             conditionExpressionIsTautology,
              showIssues) where
 
 import Data.List as L
@@ -15,6 +16,7 @@ data Issue
   = RedundantITE Stmt
   | RedundantIf Stmt
   | RedundantElse Stmt
+  | ConditionExpressionIsTautology Stmt
   | ConstantInIfCondition Stmt
   | EmptyLoopBody Stmt
   | SwitchCaseIsSameAsDefault Stmt
@@ -24,6 +26,7 @@ instance Show Issue where
   show (RedundantITE s) = "Redundant if-else statment:\n" ++ showP s
   show (RedundantIf s) = "Redundant if:\n" ++ showP s
   show (RedundantElse s) = "Redundant else:\n" ++ showP s
+  show (ConditionExpressionIsTautology s) = "Condition expression is tautology:\n" ++ showP s
   show (ConstantInIfCondition s) = "Constant in if condition:\n" ++ showP s
   show (EmptyLoopBody s) = "Empty loop body:\n" ++ showP s
   show (SwitchCaseIsSameAsDefault s) = "Switch case is same as default:\n" ++ showP s
@@ -34,6 +37,7 @@ redundantITE s = RedundantITE s
 redundantIf s = RedundantIf s
 redundantElse s = RedundantElse s
 constantInIfCondition s = ConstantInIfCondition s
+conditionExpressionIsTautology s = ConditionExpressionIsTautology s
 emptyLoopBody s = EmptyLoopBody s
 switchCaseIsSameAsDefault s = SwitchCaseIsSameAsDefault s
 

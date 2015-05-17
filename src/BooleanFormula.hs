@@ -1,6 +1,7 @@
 module BooleanFormula(true, false, con, dis, neg, var,
                       expToBooleanFormula,
-                      isTautology) where
+                      isTautology,
+                      expIsTautology) where
 
 import Language.Java.Syntax
 import Z3.Monad
@@ -24,6 +25,12 @@ neg = Neg
 expToBooleanFormula :: Exp -> Maybe BooleanFormula
 expToBooleanFormula (Lit (Boolean True)) = Just true
 expToBooleanFormula (Lit (Boolean False)) = Just false
+
+expIsTautology :: Exp -> IO Bool
+expIsTautology exp =
+  case expToBooleanFormula exp of
+    Just bf -> isTautology bf
+    Nothing -> return False
 
 isTautology :: BooleanFormula -> IO Bool
 isTautology bf = evalZ3 $ isTautologyZ3 bf
