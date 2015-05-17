@@ -25,6 +25,7 @@ neg = Neg
 expToBooleanFormula :: Exp -> Maybe BooleanFormula
 expToBooleanFormula (Lit (Boolean True)) = Just true
 expToBooleanFormula (Lit (Boolean False)) = Just false
+expToBooleanFormula _ = Nothing
 
 expIsTautology :: Exp -> IO Bool
 expIsTautology exp =

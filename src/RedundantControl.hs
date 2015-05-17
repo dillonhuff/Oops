@@ -1,5 +1,5 @@
 module RedundantControl(redundantIfThenElse,
-                        checkStmtForRedundantControl, checkStmtForRedundantControlM,
+                        checkStmtForRedundantControl, checkStmtForRedundantControlM, checkStmtForRedundantControlAll,
                         pureCheckers, impureCheckers,
                         emptyIf) where
 
@@ -19,6 +19,13 @@ pureCheckers = [redundantIfThenElse,
                 checkSwitchCaseIsSameAsDefault]
 
 impureCheckers = [conditionExpIsTautology]
+
+checkStmtForRedundantControlAll :: Stmt -> IO [Issue]
+checkStmtForRedundantControlAll s =
+  let pureIssues = checkStmtForRedundantControl pureCheckers s in
+  do
+    impureIssues <- checkStmtForRedundantControlM impureCheckers s
+    return $ pureIssues ++ impureIssues
 
 checkStmtForRedundantControlM :: (Monad m) => [Stmt -> m (Maybe Issue)] -> Stmt -> m [Issue]
 checkStmtForRedundantControlM issueCheckersM s = do
@@ -90,7 +97,6 @@ compareToDefault (SwitchBlock Default b1) (SwitchBlock _ b2) = b1 == b2
 conditionExpIsTautology :: Stmt -> IO (Maybe Issue)
 conditionExpIsTautology s@(IfThen e _) = checkExpIsTautology s e
 conditionExpIsTautology s@(IfThenElse e _ _) = checkExpIsTautology s e
-conditionExpIsTautology s@(While e _) = checkExpIsTautology s e
 conditionExpIsTautology s@(Assert e _) = checkExpIsTautology s e
 conditionExpIsTautology s@(Do _ e) = checkExpIsTautology s e
 conditionExpIsTautology s = return Nothing

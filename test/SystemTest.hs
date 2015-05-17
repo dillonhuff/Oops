@@ -16,7 +16,7 @@ main :: IO ()
 main = do
   startTime <- getZonedTime
   source <- allFilesWithExtensions javaExtensions projectDir
-  res <- mapM (applyToFileContents parseAndCheckCU parseLog) source
+  res <- mapM (applyToFileContentsIO parseAndCheckCU parseLog) source
   endTime <- getZonedTime
   putStrLn $ "\n\n********************* FINAL ERROR REPORT **************************"
   putStrLn $ showIssues $ L.concat $ E.rights res
@@ -28,8 +28,11 @@ parseLog res path =
     Left err -> "Parse error: " ++ err
     Right issues -> "Checked " ++ path ++ " result was:\n" ++ showIssues issues
 
+parseAndCheckCU :: String -> IO (Either String [Issue])
 parseAndCheckCU str =
   case parser compilationUnit str of
-    Left err -> Left $ show err
-    Right compUnit -> Right $ checkCompilationUnit compUnit
+    Left err -> return $ Left $ show err
+    Right compUnit -> do
+      issues <- checkCompilationUnit compUnit
+      return $ Right issues
 

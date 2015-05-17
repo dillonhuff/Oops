@@ -1,5 +1,5 @@
 module FileManipulation(
-  applyToFileContents,
+  applyToFileContents, applyToFileContentsIO,
   allFilesWithExtensions,
   javaExtensions,
   cExtensions,
@@ -26,6 +26,14 @@ applyToFileContents f log path = do
     do
       putStr $ log res path
       return res
+
+applyToFileContentsIO :: (String -> IO a) -> (a -> FilePath -> String) -> FilePath -> IO a
+applyToFileContentsIO f log path = do
+  fileH <- SIO.openFile path ReadMode
+  fileContents <- StrictIO.hGetContents fileH
+  res <- f fileContents
+  putStr $ log res path
+  return res
 
 allFilesWithExtensions :: [String] -> FilePath -> IO [FilePath]
 allFilesWithExtensions acceptableExtensions dir = do

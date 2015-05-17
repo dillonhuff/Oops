@@ -38,6 +38,6 @@ rawImpureRedundantControlCases =
   [("return x;", []),
    ("if (true) { return x; }", [conditionExpressionIsTautology $ impureStmts !! 1]),
    ("if (true) {return x;} else {return y;}", [conditionExpressionIsTautology $ impureStmts !! 2]),
-   ("while (true) { x = x + 1; }", [conditionExpressionIsTautology $ impureStmts !! 3]),
+   ("while (true) { x = x + 1; }", []),
    ("assert true : 2;", [conditionExpressionIsTautology $ impureStmts !! 4]),
    ("do { x = x + 4; } while (true);", [conditionExpressionIsTautology $ impureStmts !! 5])]
