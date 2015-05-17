@@ -1,23 +1,31 @@
 module RedundantControl(redundantIfThenElse,
-                        checkStmt,
-                        checkers,
+                        checkStmtForRedundantControl, checkStmtForRedundantControlM,
+                        pureCheckers, impureCheckers,
                         emptyIf) where
 
+import Control.Monad
 import Data.List as L
 import Data.Maybe as M
 import Language.Java.Syntax
 
+import BooleanFormula
 import Issue
 
-checkers = [redundantIfThenElse,
-            emptyIf,
-            emptyElse,
-            checkConstantInIfCondition,
-            emptyWhileLoopBody,
-            checkSwitchCaseIsSameAsDefault]
+pureCheckers = [redundantIfThenElse,
+                emptyIf,
+                emptyElse,
+                checkConstantInIfCondition,
+                emptyWhileLoopBody,
+                checkSwitchCaseIsSameAsDefault]
 
-checkStmt :: [Stmt -> Maybe Issue] -> Stmt -> [Issue]
-checkStmt issueCheckers s =
+impureCheckers = [conditionExpIsTautology]
+
+checkStmtForRedundantControlM :: (Monad m) => [Stmt -> m (Maybe Issue)] -> Stmt -> m [Issue]
+checkStmtForRedundantControlM issueCheckersM s = do
+  liftM M.catMaybes $ mapM (\checker -> checker s) issueCheckersM
+
+checkStmtForRedundantControl :: [Stmt -> Maybe Issue] -> Stmt -> [Issue]
+checkStmtForRedundantControl issueCheckers s =
   M.catMaybes $ L.map (\checker -> checker s) issueCheckers
 
 redundantIfThenElse :: Stmt -> Maybe Issue
@@ -79,3 +87,17 @@ getDefault (x:rest) = getDefault rest
 compareToDefault (SwitchBlock Default _) (SwitchBlock Default _) = False
 compareToDefault (SwitchBlock Default b1) (SwitchBlock _ b2) = b1 == b2
       
+conditionExpIsTautology :: Stmt -> IO (Maybe Issue)
+conditionExpIsTautology s@(IfThen e _) = checkExpIsTautology s e
+conditionExpIsTautology s@(IfThenElse e _ _) = checkExpIsTautology s e
+conditionExpIsTautology s@(While e _) = checkExpIsTautology s e
+conditionExpIsTautology s@(Assert e _) = checkExpIsTautology s e
+conditionExpIsTautology s@(Do _ e) = checkExpIsTautology s e
+conditionExpIsTautology s = return Nothing
+
+checkExpIsTautology :: Stmt -> Exp -> IO (Maybe Issue)
+checkExpIsTautology s e = do
+  isTaut <- expIsTautology e
+  case isTaut of
+    True -> return $ Just $ conditionExpressionIsTautology s
+    False -> return Nothing

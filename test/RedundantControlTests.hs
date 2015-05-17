@@ -8,8 +8,9 @@ import RedundantControl
 import TestUtils
 import Utils
 
-redundantControlTests =
-  testFunction (checkStmt checkers) redundantControlCases
+redundantControlTests = do
+  testFunction (checkStmtForRedundantControl pureCheckers) redundantControlCases
+  testFunctionM (checkStmtForRedundantControlM impureCheckers) impureRedundantControlCases
 
 redundantControlCases = L.zip stmts ress
 
@@ -26,3 +27,17 @@ rawCases =
    ("if (true) { x = 1; }", [constantInIfCondition $ stmts !! 5]),
    ("while (x > 4) {}", [emptyLoopBody $ stmts !! 6]),
    ("switch (x) { case(1): y = 3; break; default: y = 3; break; }", [switchCaseIsSameAsDefault $ stmts !! 7])]
+
+impureRedundantControlCases = L.zip impureStmts impureRess
+
+impureStmts = L.map extractRight $ L.map (\(x, y) -> parser stmt x) rawImpureRedundantControlCases
+
+impureRess = L.map snd rawImpureRedundantControlCases
+
+rawImpureRedundantControlCases =
+  [("return x;", []),
+   ("if (true) { return x; }", [conditionExpressionIsTautology $ impureStmts !! 1]),
+   ("if (true) {return x;} else {return y;}", [conditionExpressionIsTautology $ impureStmts !! 2]),
+   ("while (true) { x = x + 1; }", [conditionExpressionIsTautology $ impureStmts !! 3]),
+   ("assert true : 2;", [conditionExpressionIsTautology $ impureStmts !! 4]),
+   ("do { x = x + 4; } while (true);", [conditionExpressionIsTautology $ impureStmts !! 5])]

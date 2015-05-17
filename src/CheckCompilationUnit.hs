@@ -68,3 +68,5 @@ checkSwitchBlock (SwitchBlock _ blkStmts) =
   L.concatMap checkBlkStmt blkStmts
 
 checkCatch (Catch _ blk) = checkBlock blk
+
+checkStmt s = checkStmtForRedundantControl s
